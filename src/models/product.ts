@@ -36,8 +36,8 @@ const productSchema = new Schema({
   },
   images: [
     {
-      data: Buffer,
-      contentType: String,
+      type: Schema.Types.ObjectId,
+      required: true,
     },
   ],
 });

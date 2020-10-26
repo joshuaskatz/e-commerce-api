@@ -2,22 +2,12 @@ import express, { Response, NextFunction } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-import multer from "multer";
 
 import authRoute from "./routes/auth";
 import usersRoute from "./routes/users";
+import productsRoute from "./routes/products";
 
 const app: express.Application = express();
-const storage: multer.StorageEngine = multer.diskStorage({
-  destination: (_, __, cb) => {
-    cb(null, "./upload");
-  },
-  filename: (_, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-export const upload: multer.Multer = multer({ storage });
 
 app.use(cors());
 app.use((_, res: Response, next: NextFunction) => {
@@ -28,12 +18,12 @@ app.use((_, res: Response, next: NextFunction) => {
   );
   next();
 });
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(authRoute);
-app.use(usersRoute);
+app.use("/auth", authRoute);
+app.use("/user", usersRoute);
+app.use("/product", productsRoute);
 
 mongoose.connect(process.env.DB_URI, {
   useNewUrlParser: true,
@@ -44,8 +34,13 @@ mongoose.connect(process.env.DB_URI, {
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
+//Initializing bucket on open so we can access files in controllers.
+export let gfs: any;
 db.once("open", () => {
-  console.log("mongooooooooo");
+  console.log("mongoooooooo");
+  gfs = new mongoose.mongo.GridFSBucket(db.db, {
+    bucketName: "products",
+  });
 });
 
 export default app;

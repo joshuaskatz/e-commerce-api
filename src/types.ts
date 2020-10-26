@@ -24,7 +24,7 @@ export interface ProductInterface {
   brand: string;
   name: string;
   categories: [ClothingCategories];
-  sizes: [StandardSizing | number];
+  sizing: [StandardSizing | string];
   price: number;
   details: string;
   images: string;
